@@ -7,57 +7,49 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #155e42, #3b0a40);
+      background: linear-gradient(to bottom, #3b0a40, #155e42);
       color: white;
-      text-align: center;
-      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 10vh;
+      height: 100vh;
+      margin: 0;
     }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      background-color: rgba(255, 255, 255, 0.1);
-      padding: 2rem;
-      border-radius: 12px;
-    }
-    h1 {
+    h2 {
       color: gold;
-      margin-bottom: 1rem;
+      text-align: center;
+      margin-bottom: 2rem;
     }
-    button {
+    .link-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    a {
       display: block;
-      width: 100%;
-      padding: 1rem;
-      margin: 1rem 0;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: gold;
+      background: gold;
       color: black;
+      text-decoration: none;
+      padding: 1rem 2rem;
+      margin: 0.8rem 0;
+      border-radius: 10px;
+      font-weight: bold;
+      text-align: center;
+      width: 240px;
+      transition: background 0.3s;
     }
-    .username {
-      margin-top: 0.5rem;
-      font-size: 1rem;
-      color: #dddddd;
+    a:hover {
+      background: white;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Welcome to Shiloh Finance</h1>
-    <div class="username" id="usernameDisplay"></div>
-
-    <button onclick="window.location.href='entry.html'">➕ Make Weekly Entry</button>
-    <button onclick="window.location.href='review.html'">📅 Review Past Report</button>
+  <h2>Welcome to Shiloh Finance Dashboard</h2>
+  <div class="link-box">
+    <a href="entry.html">➕ Make Entry</a>
+    <a href="review.html">📅 Review Entries</a>
+    <a href="index.html">🔐 Logout</a>
   </div>
-
-  <script>
-    const user = localStorage.getItem("loggedInUser");
-    if (!user) {
-      window.location.href = "index.html";
-    } else {
-      document.getElementById("usernameDisplay").textContent = `Logged in as: ${user}`;
-    }
-  </script>
 </body>
 </html>
