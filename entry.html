@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Entry - Shiloh Finance</title>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #3b0a40, #155e42);
+      color: white;
+      padding: 1.5rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+    h2 {
+      color: gold;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: none;
+      margin-top: 0.2rem;
+      font-size: 1rem;
+    }
+    .section {
+      margin-top: 2rem;
+      border-top: 1px solid #ccc;
+      padding-top: 1rem;
+    }
+    .btn {
+      background-color: gold;
+      color: black;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 2rem;
+      display: block;
+      width: 100%;
+    }
+    #previewBox {
+      background-color: rgba(255,255,255,0.2);
+      padding: 1rem;
+      margin-top: 1.5rem;
+      border-radius: 8px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Weekly Finance Entry</h2>
+    <form id="entryForm">
+      <label for="date">Sunday Date</label>
+      <input type="date" id="date" required />
+
+      <div class="section">
+        <h3>Cash Section</h3>
+        <label for="cashTithe">Cash Tithe / First Fruits</label>
+        <input type="number" id="cashTithe" min="0" />
+
+        <label for="cashOffering">Cash Offering</label>
+        <input type="number" id="cashOffering" min="0" />
+
+        <label for="hasTeams">Are there team contributions?</label>
+        <select id="hasTeams">
+          <option value="no">No</option>
+          <option value="yes">Yes</option>
+        </select>
+
+        <div id="teamFields" style="display: none;">
+          <label for="worshipTeam">Praise & Worship</label>
+          <input type="number" id="worshipTeam" min="0" />
+
+          <label for="womenTeam">Women of Excellence</label>
+          <input type="number" id="womenTeam" min="0" />
+
+          <label for="menTeam">Men of Integrity</label>
+          <input type="number" id="menTeam" min="0" />
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Electronic Section</h3>
+        <label for="elecTithe">Electronic Tithe</label>
+        <input type="number" id="elecTithe" min="0" />
+
+        <label for="elecOffering">Electronic Offering</label>
+        <input type="number" id="elecOffering" min="0" />
+      </div>
+
+      <div class="section">
+        <h3>Expenses</h3>
+        <label for="expenses">Total Expenses</label>
+        <input type="number" id="expenses" min="0" />
+      </div>
+
+      <button type="submit" class="btn">Preview Report</button>
+    </form>
+
+    <div id="previewBox">
+      <h3>Preview Report</h3>
+      <div id="previewContent"></div>
+      <button class="btn" onclick="confirmSubmission()">Confirm and Save</button>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("hasTeams").addEventListener("change", function () {
+      document.getElementById("teamFields").style.display = this.value === "yes" ? "block" : "none";
+    });
+
+    let entryData = {};
+
+    document.getElementById("entryForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const date = document.getElementById("date").value;
+      const cashTithe = +document.getElementById("cashTithe").value || 0;
+      const cashOffering = +document.getElementById("cashOffering").value || 0;
+      const elecTithe = +document.getElementById("elecTithe").value || 0;
+      const elecOffering = +document.getElementById("elecOffering").value || 0;
+      const expenses = +document.getElementById("expenses").value || 0;
+      const worshipTeam = +document.getElementById("worshipTeam").value || 0;
+      const womenTeam = +document.getElementById("womenTeam").value || 0;
+      const menTeam = +document.getElementById("menTeam").value || 0;
+
+      const teamTotal = worshipTeam + womenTeam + menTeam;
+      const totalTithe = cashTithe + elecTithe;
+      const totalOffering = cashOffering + elecOffering;
+      const titheOfTithes = Math.round(0.10 * totalTithe);
+      const churchTitheFromOffering = Math.round(0.10 * totalOffering);
+      const totalChurchTithe = titheOfTithes + churchTitheFromOffering;
+
+      let availableCash = cashTithe + cashOffering;
+      let expenseCoveredByCash = Math.min(expenses, availableCash);
+      let expenseFromChurch = expenses - expenseCoveredByCash;
+
+      let remainingCashTithe = cashTithe - titheOfTithes;
+      let usedCashForElecOffering = Math.min(elecOffering, Math.max(0, remainingCashTithe));
+      let pullFromTitheAccount = elecOffering - usedCashForElecOffering;
+      let depositToTitheAcc = Math.max(0, remainingCashTithe - usedCashForElecOffering);
+
+      entryData = {
+        Date: date,
+        "Cash Tithe": cashTithe,
+        "Cash Offering": cashOffering,
+        "Elec Tithe": elecTithe,
+        "Elec Offering": elecOffering,
+        "Praise & Worship": worshipTeam,
+        "Women of Excellence": womenTeam,
+        "Men of Integrity": menTeam,
+        "Total Tithe": totalTithe,
+        "Total Offering": totalOffering,
+        "Tithe of Tithes": titheOfTithes,
+        "Offering Church Tithe": churchTitheFromOffering,
+        "Total Church Tithe (Reported)": totalChurchTithe,
+        "Team Total": teamTotal,
+        "Expenses": expenses,
+        "Expense Paid (Cash)": expenseCoveredByCash,
+        "Expense Paid (Church Account)": expenseFromChurch,
+        "Cash Used for Elec Offering": usedCashForElecOffering,
+        "Pulled from Tithe Account": pullFromTitheAccount,
+        "Deposit to Tithe Account": depositToTitheAcc,
+        "Deposited to Church Account": cashOffering + elecOffering
+      };
+
+      const previewHTML = `
+        <p><strong>Date:</strong> ${date}</p>
+        <p><strong>Total Tithe:</strong> ${totalTithe}</p>
+        <p><strong>Total Offering:</strong> ${totalOffering}</p>
+        <p><strong>Team Contributions:</strong> ${teamTotal}</p>
+        <hr/>
+        <h4>Finance Action</h4>
+        <p>Pay Tithe of Tithes (${titheOfTithes}) to Church Account</p>
+        <p>Use ${usedCashForElecOffering} from Cash Tithe to cover Elec Offering</p>
+        <p>Pull ${pullFromTitheAccount} from Tithe Account to cover remaining Elec Offering</p>
+        <p>Deposit ${depositToTitheAcc} to Tithe Account</p>
+        <p>Deposit ${cashOffering} Cash Offering + ${elecOffering} Elec Offering to Church Account</p>
+        <ul>
+          <li>Praise & Worship: ${worshipTeam}</li>
+          <li>Women of Excellence: ${womenTeam}</li>
+          <li>Men of Integrity: ${menTeam}</li>
+        </ul>
+        <p><strong>Expenses:</strong> ${expenses} | Cash: ${expenseCoveredByCash} | Church Account: ${expenseFromChurch}</p>
+        <p><strong>Total Church Tithe (Reported Only):</strong> ${totalChurchTithe}</p>
+      `;
+
+      document.getElementById("previewContent").innerHTML = previewHTML;
+      document.getElementById("previewBox").style.display = "block";
+    });
+
+    function confirmSubmission() {
+      const existing = JSON.parse(localStorage.getItem("shilohReports") || "{}");
+      existing[entryData.Date] = entryData;
+      localStorage.setItem("shilohReports", JSON.stringify(existing));
+
+      const ws = XLSX.utils.json_to_sheet(Object.values(existing));
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Shiloh Reports");
+      XLSX.writeFile(wb, "shiloh_finance_reports.xlsx");
+
+      alert("✅ Report confirmed, saved locally, and Excel downloaded!");
+      window.location.href = "dashboard.html";
+    }
+  </script>
+</body>
+</html>

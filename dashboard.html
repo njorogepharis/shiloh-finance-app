@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - Shiloh Finance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #155e42, #3b0a40);
+      color: white;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 12px;
+    }
+    h1 {
+      color: gold;
+      margin-bottom: 1rem;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: gold;
+      color: black;
+    }
+    .username {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      color: #dddddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to Shiloh Finance</h1>
+    <div class="username" id="usernameDisplay"></div>
+
+    <button onclick="window.location.href='entry.html'">➕ Make Weekly Entry</button>
+    <button onclick="window.location.href='review.html'">📅 Review Past Report</button>
+  </div>
+
+  <script>
+    const user = localStorage.getItem("loggedInUser");
+    if (!user) {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("usernameDisplay").textContent = `Logged in as: ${user}`;
+    }
+  </script>
+</body>
+</html>

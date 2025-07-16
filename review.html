@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Review Reports - Shiloh Finance</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #3b0a40, #155e42);
+      color: white;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: rgba(255,255,255,0.1);
+      padding: 2rem;
+      border-radius: 10px;
+    }
+    h2 {
+      color: gold;
+      text-align: center;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 5px;
+    }
+    .btn {
+      background: gold;
+      color: black;
+      font-weight: bold;
+      margin-top: 1.5rem;
+      cursor: pointer;
+    }
+    .reportBox {
+      margin-top: 2rem;
+      background: rgba(255,255,255,0.2);
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    .warning {
+      color: #ff8080;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Review Submitted Reports</h2>
+
+    <label for="reportDate">Select Sunday Date</label>
+    <select id="reportDate">
+      <option value="">-- Select Date --</option>
+    </select>
+
+    <div class="reportBox" id="reportContent" style="display: none;"></div>
+
+    <div id="warningBox" class="warning"></div>
+  </div>
+
+  <script>
+    const reportDate = document.getElementById("reportDate");
+    const reportContent = document.getElementById("reportContent");
+    const warningBox = document.getElementById("warningBox");
+
+    const savedReports = JSON.parse(localStorage.getItem("shilohReports") || "{}");
+
+    function populateDates() {
+      const dates = Object.keys(savedReports).sort().reverse();
+      dates.forEach(date => {
+        const option = document.createElement("option");
+        option.value = date;
+        option.textContent = date;
+        reportDate.appendChild(option);
+      });
+    }
+
+    function formatReport(data) {
+      return `
+        <p><strong>Date:</strong> ${data.Date}</p>
+        <p><strong>Total Tithe:</strong> ${data["Total Tithe"]}</p>
+        <p><strong>Total Offering:</strong> ${data["Total Offering"]}</p>
+        <p><strong>Team Contributions:</strong> ${data["Team Total"]}</p>
+        <hr/>
+        <h4>Finance Action</h4>
+        <p>Pay Tithe of Tithes (${data["Tithe of Tithes"]}) to Church Account</p>
+        <p>Use ${data["Cash Used for Elec Offering"]} from Cash Tithe to cover Elec Offering</p>
+        <p>Pull ${data["Pulled from Tithe Account"]} from Tithe Account to cover remaining Elec Offering</p>
+        <p>Deposit ${data["Deposit to Tithe Account"]} to Tithe Account</p>
+        <p>Deposit ${data["Deposited to Church Account"]} to Church Account</p>
+        <ul>
+          <li>Praise & Worship: ${data["Praise & Worship"]}</li>
+          <li>Women of Excellence: ${data["Women of Excellence"]}</li>
+          <li>Men of Integrity: ${data["Men of Integrity"]}</li>
+        </ul>
+        <hr/>
+        <p><strong>Expenses:</strong> ${data["Expenses"]} total</p>
+        <p>Paid from Cash: ${data["Expense Paid (Cash)"]}</p>
+        <p>Paid from Church Account: ${data["Expense Paid (Church Account)"]}</p>
+        <p><strong>Total Church Tithe (Reported only):</strong> ${data["Total Church Tithe (Reported)"]}</p>
+      `;
+    }
+
+    reportDate.addEventListener("change", function () {
+      const selected = this.value;
+      warningBox.innerHTML = "";
+      reportContent.style.display = "none";
+
+      if (!selected) return;
+
+      const report = savedReports[selected];
+      if (!report) {
+        warningBox.textContent = "⚠️ No report found for this date.";
+        return;
+      }
+
+      const isSunday = new Date(selected).getDay() === 0;
+      if (!isSunday) {
+        warningBox.textContent = "⚠️ This is not a Sunday. Reports must be for Sundays only.";
+        return;
+      }
+
+      const enteredPassword = prompt("🔒 Enter your password to view this report:");
+      const userPasswords = {
+        "Pharis": "0708469778",
+        "Caroline": "0725590014",
+        "Isaac": "0713210707"
+      };
+
+      const match = Object.values(userPasswords).includes(enteredPassword);
+      if (!match) {
+        warningBox.textContent = "❌ Incorrect password. Access denied.";
+        return;
+      }
+
+      reportContent.innerHTML = formatReport(report);
+      reportContent.style.display = "block";
+    });
+
+    populateDates();
+  </script>
+</body>
+</html>
